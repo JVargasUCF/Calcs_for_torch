@@ -29,6 +29,7 @@ function results = sizeOrifice(S)
     results.massFlow_ox_gps     = NaN;
     results.massFlow_fuel_gps   = NaN;
     results.mdot_fuel_tap_kgps  = 0;    % tap-off mass flow (independent branch)
+    results.mdot_fuel_tap_gps   = 0;    % tap-off mass flow in g/s
     results.mode    = '';
     results.ok      = true;
     results.message = '';
@@ -69,6 +70,7 @@ function results = sizeOrifice(S)
         mF   = S.Fuel_Cd     * A_fuel * G_f;
         % Tap-off flow (independent branch)
         results.mdot_fuel_tap_kgps = compute_tapoff_mdot(S, P0_f_kPa, T0_f, gamma_f, R_f, Pd_tap_kPa);
+        results.mdot_fuel_tap_gps  = results.mdot_fuel_tap_kgps * 1000;
         % Save
         results.pressure_ox_kPa     = P0_ox_kPa;
         results.pressure_fuel_kPa   = P0_f_kPa;
@@ -87,7 +89,7 @@ function results = sizeOrifice(S)
         results.message = sprintf([ ...
             'Pass-through (compressible). P0_f=%.1f, P0_ox=%.1f kPa; Pd=%.1f kPa\n' ...
             'd_f=%.3f mm, d_ox=%.3f mm | m_f=%.4f g/s, m_ox=%.4f g/s | m_tap=%.4f g/s'], ...
-            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, results.mdot_fuel_tap_kgps*1000);
+            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, results.mdot_fuel_tap_gps);
 
     elseif feedPressureKnown && ~orificeKnown
         % Case B: known feed P, unknown d -> size d for target flows
@@ -118,6 +120,7 @@ function results = sizeOrifice(S)
         d_ox_mm   = d_from_area_m2(A_ox);
         % Tap-off flow
         results.mdot_fuel_tap_kgps = compute_tapoff_mdot(S, P0_f_kPa, T0_f, gamma_f, R_f, Pd_tap_kPa);
+        results.mdot_fuel_tap_gps  = results.mdot_fuel_tap_kgps * 1000;
         results.pressure_fuel_kPa   = P0_f_kPa;
         results.pressure_ox_kPa     = P0_ox_kPa;
         results.orificeDiam_fuel_mm = d_fuel_mm;
@@ -133,7 +136,7 @@ function results = sizeOrifice(S)
         results.message = sprintf([ ...
             'Sized diameters (compressible). P0_f=%.1f, P0_ox=%.1f kPa; Pd=%.1f kPa\n' ...
             'd_f=%.3f mm, d_ox=%.3f mm | m_f=%.4f g/s, m_ox=%.4f g/s (ϕ=%.2f) | m_tap=%.4f g/s'], ...
-            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, targetPhi, results.mdot_fuel_tap_kgps*1000);
+            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, targetPhi, results.mdot_fuel_tap_gps);
 
     elseif ~feedPressureKnown && orificeKnown
         % Case C: unknown feed P, known d -> solve required P0 for target flows
@@ -177,6 +180,7 @@ function results = sizeOrifice(S)
         [T_entry_f,  rho_entry_f ] = entry_isenthl_state(h_storage_f,  Pd_kPa, S.Fuel_Species_REFPROP);
         % Tap-off flow
         results.mdot_fuel_tap_kgps = compute_tapoff_mdot(S, P0_f_kPa, T0_f, gamma_f, R_f, Pd_tap_kPa);
+        results.mdot_fuel_tap_gps  = results.mdot_fuel_tap_kgps * 1000;
         % Save results
         results.pressure_fuel_kPa   = P0_f_kPa;
         results.pressure_ox_kPa     = P0_ox_kPa;
@@ -193,7 +197,7 @@ function results = sizeOrifice(S)
         results.message = sprintf([ ...
             'Solved feed pressures (compressible). Pd=%.1f kPa\n' ...
             'P0_f=%.1f kPa, P0_ox=%.1f kPa | m_f=%.4f g/s, m_ox=%.4f g/s (ϕ=%.2f) | m_tap=%.4f g/s'], ...
-            Pd_kPa, P0_f_kPa, P0_ox_kPa, results.massFlow_fuel_gps, results.massFlow_ox_gps, targetPhi, results.mdot_fuel_tap_kgps*1000);
+            Pd_kPa, P0_f_kPa, P0_ox_kPa, results.massFlow_fuel_gps, results.massFlow_ox_gps, targetPhi, results.mdot_fuel_tap_gps);
 
         
     else
@@ -221,6 +225,7 @@ function results = sizeOrifice(S)
         mF   = S.Fuel_Cd     * A_fuel * G_f;
         % Tap-off flow
         results.mdot_fuel_tap_kgps = compute_tapoff_mdot(S, P0_f_kPa, T0_f, gamma_f, R_f, Pd_tap_kPa);
+        results.mdot_fuel_tap_gps  = results.mdot_fuel_tap_kgps * 1000;
         results.pressure_ox_kPa     = P0_ox_kPa;
         results.pressure_fuel_kPa   = P0_f_kPa;
         results.orificeDiam_ox_mm   = d_ox_mm;
@@ -236,7 +241,7 @@ function results = sizeOrifice(S)
         results.message = sprintf([ ...
             'Computed flows (compressible). P0_f=%.1f, P0_ox=%.1f kPa; Pd=%.1f kPa\n' ...
             'd_f=%.3f mm, d_ox=%.3f mm | m_f=%.4f g/s, m_ox=%.4f g/s | m_tap=%.4f g/s'], ...
-            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, results.mdot_fuel_tap_kgps*1000);
+            P0_f_kPa, P0_ox_kPa, Pd_kPa, d_fuel_mm, d_ox_mm, results.massFlow_fuel_gps, results.massFlow_ox_gps, results.mdot_fuel_tap_gps);
     end
     % --------- helper functions ----------
     function tf = isfinite_num(x)

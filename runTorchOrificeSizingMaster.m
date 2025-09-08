@@ -14,6 +14,9 @@ function results = runTorchOrificeSizingMaster(torchInputs)
     fprintf('Fuel diameter: %.3f mm\n', results.orificeDiam_fuel_mm);
     fprintf('Oxidizer feed pressure: %.1f kPa\n', results.pressure_ox_kPa);
     fprintf('Fuel feed pressure: %.1f kPa\n', results.pressure_fuel_kPa);
-    fprintf('Oxidizer mass flow: %.4f mg/s\n', results.massFlow_ox_gps);
-    fprintf('Fuel mass flow: %.4f mg/s\n', results.massFlow_fuel_gps);
+    fprintf('Oxidizer mass flow: %.4f g/s\n', results.massFlow_ox_gps);
+    fprintf('Fuel mass flow: %.4f g/s\n', results.massFlow_fuel_gps);
+    if isfield(results, 'mdot_fuel_tap_gps')
+        fprintf('Fuel tap-off mass flow: %.4f g/s\n', results.mdot_fuel_tap_gps);
+    end
 end
